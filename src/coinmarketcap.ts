@@ -7,7 +7,7 @@ const COINMARKETCAP_API_ENDPOINT = COINMARKETCAP_API_KEY
   : "https://sandbox-api.coinmarketcap.com";
 
 export const getTokenPrice = (tokenSymbol: string, fiatSymbol: string) => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     if (!tokenSymbol) {
       reject({ message: "Token symbol is required" });
     }
@@ -15,9 +15,8 @@ export const getTokenPrice = (tokenSymbol: string, fiatSymbol: string) => {
       reject({ message: "Fiat symbol is required" });
     }
 
-    let response: null | AxiosResponse = null;
-    try {
-      response = await axios.get(
+    axios
+      .get(
         `${COINMARKETCAP_API_ENDPOINT}/v2/cryptocurrency/quotes/latest?symbol=${tokenSymbol}&convert=${fiatSymbol}`,
         {
           headers: {
@@ -25,20 +24,21 @@ export const getTokenPrice = (tokenSymbol: string, fiatSymbol: string) => {
               COINMARKETCAP_API_KEY || "b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c",
           },
         }
-      );
-    } catch (ex) {
-      response = null;
-      reject(ex);
-    }
-    if (response) {
-      // success
-      const json = response.data;
-      if (json.data && json.data[tokenSymbol]) {
-        resolve(json.data[tokenSymbol]);
-      } else {
-        reject({ message: "Token not found" });
-      }
-    }
+      )
+      .then((response) => {
+        if (response) {
+          // success
+          const json = response.data;
+          if (json.data && json.data[tokenSymbol]) {
+            resolve(json.data[tokenSymbol]);
+          } else {
+            reject({ message: "Token not found" });
+          }
+        }
+      })
+      .catch((ex) => {
+        reject(ex);
+      });
   });
 };
 
