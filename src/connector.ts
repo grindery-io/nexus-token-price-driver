@@ -3,7 +3,11 @@ import {
   ConnectorDefinition,
   ActionOutput,
 } from "grindery-nexus-common-utils";
-import { extractQuoteProperty, getTokenPrice } from "./coinmarketcap";
+import {
+  extractQuoteProperty,
+  getTokenPrice,
+  getTokenSymbolByAddress,
+} from "./coinmarketcap";
 
 let debugOutput = "Hello World!";
 
@@ -14,7 +18,7 @@ function addDebugOutput(output: string) {
   debugOutput += `\n[${new Date().toISOString()}] ${output}`;
 }
 
-async function getTokenPriceAction(
+async function getTokenPriceBySymbol(
   params: ConnectorInput<unknown>
 ): Promise<ActionOutput> {
   const fields = params.fields as {
@@ -59,8 +63,64 @@ async function getTokenPriceAction(
   };
 }
 
+async function getTokenPriceByAddress(
+  params: ConnectorInput<unknown>
+): Promise<ActionOutput> {
+  const fields = params.fields as {
+    tokenAddress: string;
+    fiatSymbol: string;
+  };
+
+  let tokenSymbol;
+  try {
+    tokenSymbol = await getTokenSymbolByAddress(fields.tokenAddress);
+  } catch (err) {
+    console.log("res error", err.message);
+  }
+
+  if (tokenSymbol) {
+    let res: any;
+    try {
+      res = await getTokenPrice(tokenSymbol, fields.fiatSymbol);
+    } catch (err) {
+      console.log("res error", err.message);
+    }
+
+    if (res) {
+      const price = extractQuoteProperty(res, fields.fiatSymbol, "price");
+      const lastUpdated = extractQuoteProperty(
+        res,
+        fields.fiatSymbol,
+        "last_updated"
+      );
+      if (price) {
+        addDebugOutput(`[${params.sessionId}] Price: ${price}`);
+        return {
+          payload: {
+            tokenAddress: fields.tokenAddress,
+            tokenSymbol: tokenSymbol,
+            fiatSymbol: fields.fiatSymbol,
+            price,
+            lastUpdated,
+          },
+        };
+      }
+    }
+  }
+
+  return {
+    payload: {
+      tokenAddress: fields.tokenAddress,
+      tokenSymbol: "",
+      fiatSybmol: fields.fiatSymbol,
+      price: "",
+      lastUpdated: "",
+    },
+  };
+}
+
 export const CONNECTOR_DEFINITION: ConnectorDefinition = {
-  actions: { getTokenPriceAction },
+  actions: { getTokenPriceBySymbol, getTokenPriceByAddress },
   triggers: {},
   webhooks: {},
   options: {

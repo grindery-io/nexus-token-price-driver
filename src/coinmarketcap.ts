@@ -32,7 +32,57 @@ export const getTokenPrice = (tokenSymbol: string, fiatSymbol: string) => {
           if (json.data && json.data[tokenSymbol]) {
             resolve(json.data[tokenSymbol]);
           } else {
-            reject({ message: "Token not found" });
+            reject({ message: `Token ${tokenSymbol} not found` });
+          }
+        }
+      })
+      .catch((ex) => {
+        reject(ex);
+      });
+  });
+};
+
+export const getTokenSymbolByAddress = (address: string) => {
+  return new Promise((resolve, reject) => {
+    if (!address) {
+      reject({ message: "Token address is required" });
+    }
+    axios
+      .get(
+        `${COINMARKETCAP_API_ENDPOINT}/v2/cryptocurrency/info?address=${address}`,
+        {
+          headers: {
+            "X-CMC_PRO_API_KEY":
+              COINMARKETCAP_API_KEY || "b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c",
+          },
+        }
+      )
+      .then((response) => {
+        if (response) {
+          // success
+          const json = response.data;
+          if (json.data) {
+            let symbol = "";
+            Object.entries(json.data).forEach(([key, value]) => {
+              const token: any = value;
+              if (
+                token &&
+                token.platform &&
+                token.platform.token_address &&
+                token.platform.token_address === address &&
+                token.symbol
+              ) {
+                symbol = token.symbol;
+              }
+            });
+
+            if (symbol) {
+              resolve(symbol);
+            } else {
+              reject({ message: `Token ${address} not found` });
+            }
+          } else {
+            reject({ message: `Token ${address} not found` });
           }
         }
       })
