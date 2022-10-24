@@ -65,13 +65,7 @@ export const getTokenSymbolByAddress = (address: string) => {
             let symbol = "";
             Object.entries(json.data).forEach(([key, value]) => {
               const token: any = value;
-              if (
-                token &&
-                token.platform &&
-                token.platform.token_address &&
-                token.platform.token_address === address &&
-                token.symbol
-              ) {
+              if (token && token.symbol) {
                 symbol = token.symbol;
               }
             });
