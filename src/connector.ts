@@ -98,7 +98,7 @@ async function getTokenPriceByAddress(
         return {
           payload: {
             tokenAddress: fields.tokenAddress,
-            tokenSymbol: tokenSymbol,
+            tokenSymbol,
             fiatSymbol: fields.fiatSymbol,
             price,
             lastUpdated,
