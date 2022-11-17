@@ -1,10 +1,12 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 
 const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY;
 
 const COINMARKETCAP_API_ENDPOINT = COINMARKETCAP_API_KEY
   ? "https://pro-api.coinmarketcap.com"
   : "https://sandbox-api.coinmarketcap.com";
+
+console.log("COINMARKETCAP_API_KEY", COINMARKETCAP_API_KEY);
 
 export const getTokenPrice = (tokenSymbol: string, fiatSymbol: string) => {
   return new Promise((resolve, reject) => {
