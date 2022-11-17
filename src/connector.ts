@@ -30,7 +30,7 @@ async function getTokenPriceBySymbol(
   try {
     res = await getTokenPrice(fields.tokenSymbol, fields.fiatSymbol);
   } catch (err) {
-    console.log("res error", err.message);
+    console.error("getTokenPrice error", err);
   }
 
   if (res) {
@@ -75,7 +75,7 @@ async function getTokenPriceByAddress(
   try {
     tokenSymbol = await getTokenSymbolByAddress(fields.tokenAddress);
   } catch (err) {
-    console.log("res error", err.message);
+    console.error("getTokenSymbolByAddress error", err);
   }
 
   if (tokenSymbol) {
@@ -83,7 +83,7 @@ async function getTokenPriceByAddress(
     try {
       res = await getTokenPrice(tokenSymbol, fields.fiatSymbol);
     } catch (err) {
-      console.log("res error", err.message);
+      console.error("getTokenPrice error", err);
     }
 
     if (res) {
