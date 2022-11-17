@@ -6,8 +6,6 @@ const COINMARKETCAP_API_ENDPOINT = COINMARKETCAP_API_KEY
   ? "https://pro-api.coinmarketcap.com"
   : "https://sandbox-api.coinmarketcap.com";
 
-console.log("COINMARKETCAP_API_KEY", COINMARKETCAP_API_KEY);
-
 export const getTokenPrice = (tokenSymbol: string, fiatSymbol: string) => {
   return new Promise((resolve, reject) => {
     if (!tokenSymbol) {
@@ -17,14 +15,18 @@ export const getTokenPrice = (tokenSymbol: string, fiatSymbol: string) => {
       reject({ message: "Fiat symbol is required" });
     }
 
+    const headers = {
+      "X-CMC_PRO_API_KEY":
+        COINMARKETCAP_API_KEY || "b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c",
+    };
+
+    console.log("headers", headers);
+
     axios
       .get(
         `${COINMARKETCAP_API_ENDPOINT}/v2/cryptocurrency/quotes/latest?symbol=${tokenSymbol}&convert=${fiatSymbol}`,
         {
-          headers: {
-            "X-CMC_PRO_API_KEY":
-              COINMARKETCAP_API_KEY || "b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c",
-          },
+          headers,
         }
       )
       .then((response) => {
